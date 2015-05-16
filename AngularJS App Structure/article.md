@@ -39,7 +39,7 @@ So we came up with this folder structure:
         - views
 ```
 
-#####Breaking down things
+#### Breaking down things
 Inside the `assets>js` folder we have:
 
 ```
@@ -250,6 +250,40 @@ var ProfileService = ['$http', 'API_URL', function($http, API_URL) {
 
 servicesModule.factory('ProfileService', ProfileService);
 ```
+In the **app-bootstrap.js** we just need to require all the modules and once again we keep this very clean.
+```
+'use strict';
+
+require('Modules/Core/index.js');
+require('Modules/Services/index.js');
+require('Modules/Finder/index.js');
+require('Modules/Authentication/index.js');
+require('Modules/Authorization/index.js');
+require('Modules/Registration/index.js');
+require('Modules/Admin/index.js');
+```
+
+Finally in our main **app.js** file we do this:
+
+```
+'use strict';
+require('angular');
+require('app-bootstrap.js');
+
+(function() {
+  var app = angular.module('thefitstep',
+    [
+      'thefitstep.module.core',
+      'thefitstep.module.services',
+      'thefitstep.module.finder',
+      'thefitstep.module.authentication',
+      'thefitstep.module.authorization',
+      'thefitstep.module.registration',
+      'thefitstep.module.administration',
+    ]);
+})();
+```
+
 
 
 
