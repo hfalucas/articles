@@ -250,7 +250,7 @@ var ProfileService = ['$http', 'API_URL', function($http, API_URL) {
 
 servicesModule.factory('ProfileService', ProfileService);
 ```
-In the **app-bootstrap.js** we just need to require all the modules and once again we keep this very clean.
+In the **app-bootstrap.js** all the modules are required keeping it very clean.
 ```
 'use strict';
 
@@ -263,7 +263,7 @@ require('Modules/Registration/index.js');
 require('Modules/Admin/index.js');
 ```
 
-Finally in our main **app.js** file we do this:
+Finally in our main **app.js** file we just do this:
 
 ```
 'use strict';
@@ -283,6 +283,13 @@ require('app-bootstrap.js');
     ]);
 })();
 ```
+(write some kind of conclusion)
+
+### #Handling Environments
+
+
+### #Gulp Scripts
+
 
 
 
