@@ -286,7 +286,35 @@ require('app-bootstrap.js');
 (write some kind of conclusion)
 
 ### #Handling Environments
+This was one of my many doubts when started to work with AngularJS. How the hell do I deal with different environments?
+Laravel makes this so easy and it turns out that with AngularJS things are not that complicated either.
+In order to handle multiple environments we will need gulp or grunt. This article will show you how to achieve that with gulp.
 
+```
+// To change enviroment run:
+// $ gulp replace --env <env_name>
+gulp.task('replace', function () {
+  // Get the environment from the command line
+  var env = args.env || 'dev';
+
+  // Read the settings from the right file
+  var filename = env + '.json';
+  var settings = JSON.parse(fs.readFileSync('./assets/js/config/' + filename, 'utf8'));
+
+  // Replace each placeholder with the correct value for the variable.
+  gulp.src('./assets/js/Modules/Core/Constants/constants.js')
+    .pipe(replace({
+    patterns: [
+      {
+        match: 'API_URL',
+        replacement: settings.API_URL
+      }
+    ]
+  }))
+  .pipe(rename('app-constants.js'))
+  .pipe(gulp.dest('./assets/js/Modules/Core/Constants'));
+});
+```
 
 ### #Gulp Scripts
 
