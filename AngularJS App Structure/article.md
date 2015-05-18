@@ -286,22 +286,57 @@ require('app-bootstrap.js');
 (write some kind of conclusion)
 
 ### #Handling Environments
-This was one of my many doubts when started to work with AngularJS. How the hell do I deal with different environments?
-Laravel makes this so easy and it turns out that with AngularJS things are not that complicated either.
-In order to handle multiple environments we will need gulp or grunt. This article will show you how to achieve that with gulp.
+AngularJS doesn't support different envrionments out of the box, so I wondered if it was actually possible to accomplish this. It turns out that it is, but with the help of [gulp](http://gulpjs.com/) or [grunt](http://gruntjs.com/).
+In our app one of the things I wanted to change deppending on the environment was the API URL.
+Here is how I solved the problem.
+
+Inside of the `config` folder create some json files with your environments names for example: `dev.json`, `production.js` and `staging.json`.
+Here you just have to put your environments variables like so:
+```
+// dev.json
+
+{
+  "API_URL": "http://api.example.app:8000/v1"
+}
+```
+```
+// production
+
+{
+  "API_URL": "http://api.example.com/v1"
+}
+```
+So far so good. Pretty basic stuff right?
+
+Once you setup your variables the next step is to create a module with constants, where it's values will be placeholders so we can run a gulp script and replace those with the real values deppending on the environment.
 
 ```
-// To change enviroment run:
-// $ gulp replace --env <env_name>
-gulp.task('replace', function () {
-  // Get the environment from the command line
-  var env = args.env || 'dev';
+// constants.js
 
-  // Read the settings from the right file
+'use strict';
+require('angular');
+
+module.exports = angular.module('thefitstep.module.core.constants', []).constant('API_URL', '@@API_URL');
+```
+
+Now in your deploy script you just need to run the following command and *voilà*.
+
+`gulp replace --env <env_name>`
+
+And that's the gulp script that makes all this possible:
+```
+var gulp      = require('gulp'),
+    args      = require('yargs').argv,
+    replace     = require('gulp-replace-task'),
+    rename      = require('gulp-rename'),
+    fs        = require('fs');
+
+gulp.task('replace', function () {
+
+  var env = args.env || 'dev';
   var filename = env + '.json';
   var settings = JSON.parse(fs.readFileSync('./assets/js/config/' + filename, 'utf8'));
 
-  // Replace each placeholder with the correct value for the variable.
   gulp.src('./assets/js/Modules/Core/Constants/constants.js')
     .pipe(replace({
     patterns: [
@@ -315,10 +350,11 @@ gulp.task('replace', function () {
   .pipe(gulp.dest('./assets/js/Modules/Core/Constants'));
 });
 ```
+What this will do is check the file with the environment name you passed get all the key, value pairs of the json and match with constant names, creating a new file with those same values.
 
-### #Gulp Scripts
+There is a lot more to cover on this topic but hopefully you can have some idea from where to start.
+Divide your app in modules and submodules, keep your controllers small, make sure when possible they only do one job and use directives when you have the same functionality on multiple parts of your application.
+These are the basics to build a good and scalable app using AngularJS.
 
-
-
-
+Tweet me [@hfalucas](https://twitter.com/hfalucas), with your opinions/suggestions or any idea you guys have to improve our app architecture as well.
 
