@@ -1,11 +1,11 @@
 >==**Disclaimer:** In this post I am not trying to preach the best/only way to  build a scalable AngularJS apps. There are many other approaches, this one happens to be the result of hours of research, reading, trial and error and some experience.==
 
 When learning new programming languages or frameworks I love to see practical/real world examples. It makes me better understand the technology and how people are actually using it.
-So I will use as case study a web app called [TheFitStep](http://thefitstep.com) recently launched by my company [Atiiv](htpp://www.atiiv.com).
+So I will use as case study a web app called [TheFitStep](http://thefitstep.com) recently launched by my company [Atiiv](http://www.atiiv.com).
 
-To give you some context before diving in some code examples, TheFitStep is a  **Single Page Application** (SPA) built with **AngularJS** which allows people search personal trainers in their area and contact them, on the other hand personal trainers can create a "CV", promote themselves and have available some specific marketing tools.
+To give you some context before diving in some code examples, TheFitStep is a  **Single Page Application** (SPA) built with **AngularJS** which allows people to search personal trainers in their area and contact them, on the other hand personal trainers can create a "CV", promote themselves and have available some specific marketing tools.
 
-In this article I'm going to talk about something that unfortunately for some reason is kept in some secrecy, and that is **Application Architecture**. Here you'll see things from:
+In this article I'm going to talk about something that unfortunately for some reason is kept in some secrecy, and that is **Application Architecture**. Here is what I am going to cover:
 
 * Folder structure;
 * Modules and sub-modules;
@@ -22,7 +22,7 @@ In TheFitStep we have two main different areas.
 
 **Public area** - where everyone can search for a personal trainer and view their profiles.
 
-**Private area** - where personal trainers need to be registered first to login and build their CV.
+**Private area** - where personal trainers need to register and login in order to build their CV.
 
 ### #Folder Structure
 
@@ -85,10 +85,10 @@ This is a bit different from mostly server-side frameworks where in a ProfilesCo
 
 In the **Core** is where we place everything that is used in both private and public areas. Under it we have again folders for Controllers, Directives, etc.
 
-The **Finder** is the actual public area and more of the same, folders for the features and sub-folders for Controllers, etc.
+The **Finder** is the actual public area and more of the same, folders for the features and sub-folders for Controllers and so on.
 
 All the interaction with the API is made through Factories but for the sake of readability we named it **Services**.
-So here you find files like: `ProfileSerive.js`, `AuthenticationService.js`, basically all the app resources.
+So here you find files like: `ProfileService.js`, `AuthenticationService.js`, basically all the app resources.
 
 
 ### #Modules and Submodules
@@ -116,6 +116,7 @@ require('Modules/Admin/Account/index.js');
 module.exports = angular.module('thefitstep.module.administration',
   [
     'ui.router',
+    // All the administration submodules
     'thefitstep.module.administration.profile',
     'thefitstep.module.administration.education',
     'thefitstep.module.administration.experience',
@@ -123,7 +124,7 @@ module.exports = angular.module('thefitstep.module.administration',
     'thefitstep.module.administration.account'
   ]);
 ```
-So using the node.js power that browserify gives to us, we require all the Admin submodules then register them in the main module.
+So using the node.js power that browserify gives to us, we require all the Admin submodules and bind them to the parent module.
 This way every time your client asks you for one more feature you just have to import it here.
 
 At Atiiv we choose the following name convention: `<app_name>.module.<module_name>.<submodule_name>` this is entirely up to you, whatever it sounds best.
@@ -273,6 +274,7 @@ require('app-bootstrap.js');
 (function() {
   var app = angular.module('thefitstep',
     [
+      // All the parent modules
       'thefitstep.module.core',
       'thefitstep.module.services',
       'thefitstep.module.finder',
@@ -283,10 +285,9 @@ require('app-bootstrap.js');
     ]);
 })();
 ```
-(write some kind of conclusion)
 
 ### #Handling Environments
-AngularJS doesn't support different envrionments out of the box, so I wondered if it was actually possible to accomplish this. It turns out that it is, but with the help of [gulp](http://gulpjs.com/) or [grunt](http://gruntjs.com/).
+AngularJS doesn't support different environments out of the box, so I wondered if it was actually possible to accomplish this. It turns out that it is, but with the help of [gulp](http://gulpjs.com/) or [grunt](http://gruntjs.com/).
 In our app one of the things I wanted to change deppending on the environment was the API URL.
 Here is how I solved the problem.
 
