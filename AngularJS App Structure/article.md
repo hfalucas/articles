@@ -5,20 +5,20 @@ So I will use as case study a web app called [TheFitStep](http://thefitstep.com)
 
 To give you some context before diving in some code examples, TheFitStep is a  **Single Page Application** (SPA) built with **AngularJS** which allows people to search personal trainers in their area and contact them, on the other hand personal trainers can create a "CV", promote themselves and have available some specific marketing tools.
 
-In this article I'm going to talk about something that unfortunately for some reason is kept in some secrecy, and that is **Application Architecture**. Here is what I am going to cover:
+In this article I'm going to talk about some AngularJS technology that unfortunately for some reason is kept in some secrecy, and that is **Application Architecture**. Here is what I am going to cover:
 
 * Folder structure;
 * Modules and sub-modules;
 * Handling environments.
 * Browserify and gulp scripts
 
-So let's get started.
+So, let's get started.
 
 ### #1 Planning
 
-Planning should be the first thing to do before write any code. Sure you can't predict everything but with time and experience you get better at it and that's how your application architecture get's better every time. You learn with your mistakes right? Well I hope so.
+Planning should be the first thing to do before we write any code. Sure you can't predict everything but with time and experience you get better at it and that's how your application architecture get's better every time. You learn with your mistakes right? Well, I hope so.
 
-In TheFitStep we have two main different areas.
+In TheFitStep we have two main areas.
 
 **Public area** - where everyone can search for a personal trainer and view their profiles.
 
@@ -40,6 +40,7 @@ So we came up with this folder structure:
 ```
 
 #### Breaking down things
+
 Inside the `assets>js` folder we have:
 
 ```
@@ -72,35 +73,37 @@ Inside the `assets>js` folder we have:
 app-bootstrap.js
 app.js
 ```
-Wow so many folders! Maybe yes but each one have only one or two things inside.
-Lets break them even further.
+
+Wow so many folders! Each folder has only one or two files inside. Lets break them even further.
 
 The **config** folder simply have .json files with our API URL for the different environments (more on that later).
 
 If we open the **Profile** folder there is a Controllers, Directives and Filters subfolders, these off-course are related only to the profile feature.
+
 We like to keep our controllers as small as possible, so don't get surprised to see a `EditProfilesController.js`, `ListProfilesController.js` and so on. Each one have one and only one job.
+
 This is a bit different from mostly server-side frameworks where in a ProfilesController you could have all this methods (show, store, update etc), in AngularJS a controller gets mudded pretty faster then in Laravel, Rails etc.
 
-**Authentication** and **Authorization** are obvious so won't get in much details.
+**Authentication** and **Authorization** are obvious, so we won't go into much detail.
 
-In the **Core** is where we place everything that is used in both private and public areas. Under it we have again folders for Controllers, Directives, etc.
+The **Core** is where we place everything that is used in both private and public areas. Under it we have again folders for Controllers, Directives, etc.
 
 The **Finder** is the actual public area and more of the same, folders for the features and sub-folders for Controllers and so on.
 
 All the interaction with the API is made through Factories but for the sake of readability we named it **Services**.
 So here you find files like: `ProfileService.js`, `AuthenticationService.js`, basically all the app resources.
 
-
 ### #Modules and Submodules
 
-We are using [browserify](http://browserify.org/) to help us decoupling our app dividing it in modules and submodules.
-Please understand by modules I'm referring to things like: Admin, Authentication, Authorization, Core, Finder etc, and submodules...well those are basically features.
+We are using [browserify](http://browserify.org/) to help us decouple our app by dividing it in modules and submodules.
+
+Please understand by modules I'm referring to things like: Admin, Authentication, Authorization, Core, Finder etc, and submodules... Well those are basically features.
 
 Note that in every single one of them there is a `index.js`. This file is used to import everything related to the submodule or module.
 
 Confused? Let me show you an example.
 
-Remember the folder structure from before, so here is the `index.js`from the **Admin Module:**
+Remember the folder structure from before, so here is the `index.js` from the **Admin Module:**
 
 ```
 'use strict';
@@ -124,7 +127,9 @@ module.exports = angular.module('thefitstep.module.administration',
     'thefitstep.module.administration.account'
   ]);
 ```
+
 So using the node.js power that browserify gives to us, we require all the Admin submodules and bind them to the parent module.
+
 This way every time your client asks you for one more feature you just have to import it here.
 
 At Atiiv we choose the following name convention: `<app_name>.module.<module_name>.<submodule_name>` this is entirely up to you, whatever it sounds best.
@@ -152,6 +157,7 @@ require('Modules/Admin/Profile/Controllers/EditProfilesController.js');
 Can you guess which submodules is this? If you said Profile then you are right.
 
 Each submodule have their routes file, instead of having a huge and extremely confusing general file it is much better to break things down.
+
 Again another example:
 ```
 'use strict';
@@ -226,6 +232,7 @@ var EditProfileController = [
 
 profileModule.controller('EditProfileController', EditProfileController);
 ```
+
 See there isn't much going on in the controllers. It just get the data from the view and delegates it to the Service.
 
 Finally a peek on the ProfileService:
@@ -251,7 +258,9 @@ var ProfileService = ['$http', 'API_URL', function($http, API_URL) {
 
 servicesModule.factory('ProfileService', ProfileService);
 ```
+
 In the **app-bootstrap.js** all the modules are required keeping it very clean.
+
 ```
 'use strict';
 
@@ -287,11 +296,14 @@ require('app-bootstrap.js');
 ```
 
 ### #Handling Environments
+
 AngularJS doesn't support different environments out of the box, so I wondered if it was actually possible to accomplish this. It turns out that it is, but with the help of [gulp](http://gulpjs.com/) or [grunt](http://gruntjs.com/).
+
 In our app one of the things I wanted to change deppending on the environment was the API URL.
 Here is how I solved the problem.
 
 Inside of the `config` folder create some json files with your environments names for example: `dev.json`, `production.js` and `staging.json`.
+
 Here you just have to put your environments variables like so:
 ```
 // dev.json
@@ -325,6 +337,7 @@ Now in your deploy script you just need to run the following command and *voilà
 `gulp replace --env <env_name>`
 
 And that's the gulp script that makes all this possible:
+
 ```
 var gulp      = require('gulp'),
     args      = require('yargs').argv,
@@ -351,6 +364,7 @@ gulp.task('replace', function () {
   .pipe(gulp.dest('./assets/js/Modules/Core/Constants'));
 });
 ```
+
 What this will do is check the file with the environment name you passed get all the key, value pairs of the json and match with constant names, creating a new file with those same values.
 
 There is a lot more to cover on this topic but hopefully you can have some idea from where to start.
@@ -358,4 +372,3 @@ Divide your app in modules and submodules, keep your controllers small, make sur
 These are the basics to build a good and scalable app using AngularJS.
 
 Tweet me [@hfalucas](https://twitter.com/hfalucas), with your opinions/suggestions or any idea you guys have to improve our app architecture as well.
-
